@@ -1,7 +1,7 @@
 'use client';
 
-import { useSession, signOut } from 'next-auth/react';
-import { Settings, LogOut, User, Building2 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { User, Building2 } from 'lucide-react';
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -62,16 +62,14 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Sign Out */}
+      {/* Access Mode */}
       <div className="bg-white border border-slate-200 rounded-xl p-6">
-        <h2 className="font-semibold text-slate-900 mb-4">Account Actions</h2>
-        <button
-          onClick={() => signOut({ callbackUrl: '/login' })}
-          className="flex items-center gap-2 text-sm font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-100 px-4 py-2.5 rounded-lg transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          Sign out
-        </button>
+        <h2 className="font-semibold text-slate-900 mb-2">Access Mode</h2>
+        <p className="text-sm text-slate-500 mb-4">Direct access is active. Authentication is automatically handled for your workspace.</p>
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          Workspace Active — Direct Mode
+        </div>
       </div>
     </div>
   );

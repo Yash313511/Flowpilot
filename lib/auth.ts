@@ -14,7 +14,7 @@ async function getMongoClient() {
   return mongoose.connection.getClient();
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const nextAuth = NextAuth({
   adapter: MongoDBAdapter(getMongoClient() as unknown as Parameters<typeof MongoDBAdapter>[0]),
   providers: [
     Google({
@@ -118,3 +118,61 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   secret: process.env.AUTH_SECRET,
 });
+
+export const handlers = nextAuth.handlers;
+export const signIn = nextAuth.signIn;
+export const signOut = nextAuth.signOut;
+
+export async function auth() {
+  try {
+    const session = await nextAuth.auth();
+    if (session?.user?.organizationId) {
+      return session;
+    }
+  } catch {
+    // Continue to default session fallback
+  }
+
+  // Provide seamless default organization session so login is never required
+  try {
+    await connectDB();
+    let defaultOrg = await Organization.findOne({ slug: 'apex-digital' });
+    if (!defaultOrg) {
+      defaultOrg = await Organization.findOne({});
+    }
+    if (!defaultOrg) {
+      defaultOrg = await Organization.create({
+        name: 'Apex Digital Solutions',
+        slug: 'apex-digital',
+        type: 'BUSINESS',
+      });
+    }
+
+    let defaultUser = await User.findOne({ organizationId: defaultOrg._id });
+    if (!defaultUser) {
+      defaultUser = await User.findOne({});
+    }
+    if (!defaultUser) {
+      defaultUser = await User.create({
+        name: 'Alex Rivera',
+        email: 'demo@flowpilot.com',
+        role: 'OWNER',
+        organizationId: defaultOrg._id,
+      });
+    }
+
+    return {
+      user: {
+        id: defaultUser._id.toString(),
+        name: defaultUser.name,
+        email: defaultUser.email,
+        organizationId: defaultOrg._id.toString(),
+        role: defaultUser.role || 'OWNER',
+      },
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    };
+  } catch (error) {
+    console.error('Default session error:', error);
+    return null;
+  }
+}

@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
 import {
   LayoutDashboard,
   Target,
@@ -12,7 +11,6 @@ import {
   Users,
   BarChart2,
   Settings,
-  LogOut,
   Zap,
   ChevronRight,
 } from 'lucide-react';
@@ -73,13 +71,6 @@ export default function Sidebar() {
           <Settings className="w-4 h-4" />
           Settings
         </Link>
-        <button
-          onClick={() => signOut({ callbackUrl: '/login' })}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          Sign out
-        </button>
       </div>
     </aside>
   );
