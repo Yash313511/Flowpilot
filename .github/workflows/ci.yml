@@ -1,0 +1,33 @@
+name: CI Build & Test
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Type Check & Build
+        run: npm run build
+        env:
+          MONGODB_URI: mongodb://localhost:27017/flowpilot-ci
+          AUTH_SECRET: test-ci-secret-flowpilot-2026-production
+          NEXTAUTH_URL: http://localhost:3000
+          AI_API_KEY: ${{ secrets.AI_API_KEY || 'ci-dummy-key' }}
+          AI_MODEL: gemini-2.5-flash
